@@ -1,0 +1,19 @@
+.controller {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    margin: 0 4px;
+}
+
+.year, .month {
+    display: flex;
+    align-items: center;
+}
+
+.wrapper {
+    width: 1280px;
+    margin: 0 auto;
+}

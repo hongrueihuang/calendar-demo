@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Calendar</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+			crossorigin="anonymous"
+		/>
+        <link rel="stylesheet" href="./index.css">
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	</head>
+	<body>
+		<div id="app" class="wrapper py-5 text-center">
+			<div class="container">
+				<nav class="d-flex justify-content-between mb-3">
+					<div class="year fs-3">
+						<button
+							type="button"
+							class="btn btn-outline-secondary p-0 controller"
+							style="border-radius: 50%"
+                            @click="year--"
+						>
+							&lt;
+						</button>
+						{{ year }} 年
+						<button
+							type="button"
+							class="btn btn-outline-secondary p-0 controller"
+							style="border-radius: 50%"
+                            @click="year++"
+						>
+							&gt;
+						</button>
+					</div>
+					<div class="month fs-4">
+						<button
+							type="button"
+							class="btn btn-outline-secondary p-0 controller"
+							style="border-radius: 50%"
+                            @click="handleMonth(false)"
+						>
+							&lt;
+						</button>
+						<span>{{ month }} 月</span>
+						<button
+							type="button"
+							class="btn btn-outline-secondary p-0 controller"
+							style="border-radius: 50%"
+                            @click="handleMonth"
+						>
+							&gt;
+						</button>
+					</div>
+				</nav>
+				<div class="row bg-primary">
+					<div v-for="day in days" class="col py-3 text-white">
+						<b>{{ day }}</b>
+					</div>
+				</div>
+				<div class="row" v-for="week in allDays">
+					<div class="col" v-for="day in week">
+						<div class="py-5">{{ day }}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script>
+		const { createApp, ref, computed } = Vue;
+
+		createApp({
+			setup() {
+				const days = ref(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]);
+				const year = ref(new Date().getFullYear());
+				const month = ref(new Date().getMonth() + 1);
+
+				function formateDate(day) {
+					const YYYY = new Date(day).getFullYear();
+					const MM = new Date(day).getMonth() + 1;
+					const DD = new Date(day).getDate();
+
+					return `${YYYY}-${padZero(MM)}-${padZero(DD)}`;
+				}
+
+                function padZero(value) {
+                    return value < 10 ? `0${value}` : value
+                }
+
+                function handleMonth(isPlus = true) {
+                    const newMonth = isPlus ? ++month.value : --month.value
+                    if (newMonth === 0) {
+                        month.value = 12
+                        year.value--
+                    }
+                    if (newMonth === 13) {
+                        month.value = 1
+                        year.value++
+                    }
+                }
+
+				const allDays = computed(() => {
+					const firstDay = new Date(year.value, month.value - 1, 1);
+					const lastDay = new Date(year.value, month.value, 0);
+					const firstDays = firstDay.getDay();
+					const lastDays = lastDay.getDay();
+					const dayInMonth = new Date(year.value, month.value, 0).getDate();
+					let all = [];
+					for (let i = 1; i <= dayInMonth; i++) {
+						let day = formateDate(firstDay.setDate(i));
+						all.push(day);
+					}
+
+					for (let i = 0; i < 6 - lastDays; i++) {
+						all.push("");
+					}
+
+					for (let i = 0; i < firstDays; i++) {
+						all.unshift("");
+					}
+
+					let weeks = Math.floor(all.length / 7);
+					let weekDay = [];
+					for (let i = 0; i <= weeks; i++) {
+						weekDay.push(all.slice(i * 7, (i + 1) * 7));
+					}
+					return weekDay;
+				});
+
+				return {
+					days,
+					year,
+					month,
+					allDays,
+                    handleMonth
+				};
+			},
+		}).mount("#app");
+	</script>
+</html>
